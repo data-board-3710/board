@@ -1,0 +1,42 @@
+name: x-monitor
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install requests
+
+      - name: Run monitor
+        id: monitor
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python monitor.py
+
+      - name: Send alert mail
+        if: hashFiles('alert_body.txt') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.GMAIL_ADDRESS }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "【監視】誹謗中傷を検知しました"
+          to: ${{ secrets.GMAIL_ADDRESS }}
+          from: X Monitor
+          body: file://alert_body.txt
+
+      - name: Commit state
+        run: |
+          git config user.name "monitor-bot"
+          git config user.email "bot@example.com"
+          git add seen.json results.jsonl results.json || true
+          git commit -m "update state" || echo "no change"
+          git push || echo "nothing to push"
