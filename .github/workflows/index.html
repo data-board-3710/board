@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="評判モニター">
+<meta name="theme-color" content="#0f1115">
+<title>評判モニター</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#1a1d24; --card2:#15171d;
+    --line:#2a2e38; --ink:#f2f4f8; --muted:#9aa3b2; --hint:#6b7280;
+    --bad:#ff5a5a; --bad-bg:#2a1416; --bad-tx:#ff8585;
+    --neg:#f0a32c; --neg-bg:#2a2012; --neg-tx:#f5bd6a;
+    --pos:#34c98a; --pos-bg:#0f231b; --pos-tx:#5cdca5;
+    --info:#5aa0ff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;padding:0 0 40px;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:16px 14px;padding-top:max(16px,env(safe-area-inset-top))}
+  .head{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+  .head .ic{width:24px;height:24px;color:var(--info)}
+  .head h1{font-size:18px;font-weight:600;margin:0;letter-spacing:.02em}
+  .sub{font-size:12px;color:var(--muted);margin:0 0 18px}
+  .reload{margin-left:auto;background:var(--card);border:1px solid var(--line);color:var(--muted);
+    width:34px;height:34px;border-radius:10px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+  .alert{display:flex;align-items:center;gap:11px;background:var(--bad-bg);
+    border:1px solid #3a1a1d;border-radius:14px;padding:14px 16px;margin-bottom:18px}
+  .alert .big{font-size:24px;line-height:1}
+  .alert .t1{font-size:12px;color:var(--bad-tx);margin:0}
+  .alert .t2{font-size:15px;font-weight:600;color:var(--bad);margin:2px 0 0}
+  .alert.calm{background:var(--pos-bg);border-color:#15402f}
+  .alert.calm .t1{color:var(--pos-tx)} .alert.calm .t2{color:var(--pos)}
+
+  .kw{display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:22px}
+  .kw .lbl{font-size:11px;color:var(--muted);margin:0}
+  .kw .val{font-size:14px;font-weight:600;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kw a{flex:0 0 auto;color:var(--info);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:7px 12px;border-radius:9px}
+
+  .sec{font-size:13px;font-weight:600;margin:0 0 11px;display:flex;align-items:center;gap:6px}
+  .sec.danger{color:var(--bad)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:13px 14px;margin-bottom:10px;border-left-width:4px}
+  .card.bad{border-left-color:var(--bad)}
+  .card.neg{border-left-color:var(--neg)}
+  .ctop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+  .acct{font-size:13px;font-weight:600;color:var(--info)}
+  .badge{flex:0 0 auto;font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px}
+  .badge.bad{background:var(--bad-bg);color:var(--bad-tx)}
+  .badge.neg{background:var(--neg-bg);color:var(--neg-tx)}
+  .badge.pos{background:var(--pos-bg);color:var(--pos-tx)}
+  .body{font-size:14px;line-height:1.55;margin:0;color:var(--ink);word-break:break-word}
+  .card.bad .body{font-size:16px;font-weight:500}
+  .date{font-size:11px;color:var(--hint);margin:7px 0 0}
+
+  details{margin-top:6px}
+  summary{font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;padding:8px 0;
+    list-style:none;display:flex;align-items:center;gap:6px}
+  summary::-webkit-details-marker{display:none}
+  .mini{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--card2);
+    border:1px solid var(--line);border-radius:10px;margin-bottom:7px}
+  .mini .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+  .mini .dot.pos{background:var(--pos)} .mini .dot.normal{background:var(--hint)}
+  .mini .mt{font-size:13px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mini .mm{font-size:11px;color:var(--hint);margin:1px 0 0}
+
+  .empty{text-align:center;color:var(--muted);font-size:14px;padding:30px 10px;
+    background:var(--card2);border:1px dashed var(--line);border-radius:12px}
+  .note{font-size:11px;color:var(--hint);margin:22px 0 0;text-align:center;line-height:1.6}
+  .samp{display:inline-block;font-size:10px;background:var(--card);color:var(--muted);
+    padding:2px 8px;border-radius:7px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 0 1 10 10M12 6a6 6 0 0 1 6 6"/></svg>
+    <h1>評判モニター<span class="samp" id="mode">読込中</span></h1>
+    <button class="reload" onclick="location.reload()" aria-label="再読み込み">⟳</button>
+  </div>
+  <p class="sub" id="sub">最新の巡回結果を読み込んでいます…</p>
+
+  <div class="alert" id="alert" style="display:none">
+    <span class="big" id="alertIcon">⚠️</span>
+    <div><p class="t1" id="alertT1">要対応</p><p class="t2" id="alertT2"></p></div>
+  </div>
+
+  <div class="kw">
+    <div style="min-width:0">
+      <p class="lbl">監視キーワード</p>
+      <p class="val" id="kw">—</p>
+    </div>
+    <a href="#" id="kwLink">変更</a>
+  </div>
+
+  <p class="sec danger" id="urgentSec" style="display:none">🔥 要注意の投稿</p>
+  <div id="urgent"></div>
+
+  <details id="othersWrap" style="display:none">
+    <summary id="othersSummary">▸ その他の投稿</summary>
+    <div id="others" style="margin-top:10px"></div>
+  </details>
+
+  <div id="emptyBox"></div>
+
+  <p class="note">
+    自動巡回の結果を表示しています。<br>
+    キーワードを変えるには「変更」から monitor.py を編集してください。
+  </p>
+</div>
+
+<script>
+const RESULTS_URL = "results.json";
+const EDIT_URL = "https://github.com/data-board-3710/board/edit/main/monitor.py";
+
+const M = {bad:{ja:"誹謗中傷"}, neg:{ja:"ネガティブ"}, pos:{ja:"ポジティブ"}, normal:{ja:"通常"}};
+const order = {bad:0, neg:1, pos:2, normal:3};
+
+const SAMPLE = {
+  keyword: "からくちTV",
+  updated: "サンプル表示",
+  posts: [
+    {a:"@anti_xxx01", t:"ここのサービスは最低。二度と使わない。", d:"10:12", c:"bad"},
+    {a:"@anti_xxx01", t:"嘘つきの会社。消えろ", d:"昨日 23:50", c:"bad"},
+    {a:"@grumpy_999", t:"値段が高いし対応も遅い。期待外れだった", d:"09:44", c:"neg"},
+    {a:"@grumpy_999", t:"待ち時間が長くてイライラした", d:"昨日 20:15", c:"neg"},
+    {a:"@kuchikomi", t:"正直微妙。ちょっとがっかりした", d:"昨日 12:11", c:"neg"},
+    {a:"@fan_no1", t:"神対応すぎる、おすすめです!", d:"08:02", c:"pos"},
+    {a:"@happy_user", t:"スタッフさんが親切で満足しました!", d:"昨日 18:55", c:"pos"},
+    {a:"@reg_member", t:"本日も通常営業とのこと", d:"昨日 15:20", c:"normal"}
+  ]
+};
+
+document.getElementById("kwLink").href = EDIT_URL;
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function render(data, isSample){
+  document.getElementById("mode").textContent = isSample ? "サンプル" : "ライブ";
+  document.getElementById("kw").textContent = data.keyword || "—";
+  document.getElementById("sub").textContent = "最終巡回: " + (data.updated || "—");
+
+  const posts = (data.posts || []).slice().sort((a,b)=>order[a.c]-order[b.c]);
+  const urgent = posts.filter(p=>p.c==="bad"||p.c==="neg");
+  const others = posts.filter(p=>p.c==="pos"||p.c==="normal");
+  const nBad = posts.filter(p=>p.c==="bad").length;
+  const nNeg = posts.filter(p=>p.c==="neg").length;
+
+  const alert = document.getElementById("alert");
+  alert.style.display = "flex";
+  if(nBad+nNeg>0){
+    alert.classList.remove("calm");
+    document.getElementById("alertIcon").textContent = "⚠️";
+    document.getElementById("alertT1").textContent = "要対応";
+    document.getElementById("alertT2").textContent = `誹謗中傷 ${nBad}件 ・ ネガ ${nNeg}件`;
+  }else{
+    alert.classList.add("calm");
+    document.getElementById("alertIcon").textContent = "✓";
+    document.getElementById("alertT1").textContent = "問題なし";
+    document.getElementById("alertT2").textContent = "要注意の投稿はありません";
+  }
+
+  if(urgent.length){
+    document.getElementById("urgentSec").style.display = "flex";
+    document.getElementById("urgent").innerHTML = urgent.map(p=>`
+      <div class="card ${p.c}">
+        <div class="ctop"><span class="acct">${esc(p.a)}</span><span class="badge ${p.c}">${M[p.c].ja}</span></div>
+        <p class="body">${esc(p.t)}</p>
+        <p class="date">${esc(p.d)}</p>
+      </div>`).join("");
+  }
+
+  if(others.length){
+    document.getElementById("othersWrap").style.display = "block";
+    document.getElementById("othersSummary").textContent = `▸ その他の投稿(${others.length}件)`;
+    document.getElementById("others").innerHTML = others.map(p=>`
+      <div class="mini"><span class="dot ${p.c}"></span>
+        <div style="min-width:0;flex:1"><p class="mt">${esc(p.t)}</p><p class="mm">${esc(p.a)} ・ ${esc(p.d)}</p></div>
+      </div>`).join("");
+  }
+
+  if(posts.length===0){
+    document.getElementById("emptyBox").innerHTML =
+      `<div class="empty">まだ該当する投稿がありません。<br>巡回でヒットすると、ここに表示されます。</div>`;
+  }
+}
+
+fetch(RESULTS_URL, {cache:"no-store"})
+  .then(r=>{ if(!r.ok) throw new Error("no file"); return r.json(); })
+  .then(d=> render(d, false))
+  .catch(()=> render(SAMPLE, true));
+</script>
+</body>
+</html>
