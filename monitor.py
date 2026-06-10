@@ -3,7 +3,7 @@ import os, json, requests, datetime
 X_TOKEN   = os.environ["X_BEARER_TOKEN"]
 CLAUDE_KEY = os.environ["ANTHROPIC_API_KEY"]
 
-KEYWORD = "からくちTV"
+KEYWORD = "ニチホ"
 SEEN_FILE = "seen.json"
 RESULT_FILE = "results.jsonl"
 JSON_FILE = "results.json"
